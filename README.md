@@ -1,7 +1,9 @@
 # Author 
 Chan Nyein Zin
 
-# Money-Transaction-Blockchain-System
+## Project Title
+
+Money-Transaction-Blockchain-System
 
 ## Introduction
 
