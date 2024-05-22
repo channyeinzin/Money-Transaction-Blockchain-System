@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Transaction Blockchain System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body { color: white; background-color: #333; }
+        #box { background-color: #1b5260; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        .table-dark.table-bordered { background-color: #1b5260; }
+        .btn { margin-top: 10px; }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <h1 class="text-center">Money Transaction Blockchain System</h1>
+    <div id="box">
+        <h2>Submit a Transaction</h2>
+        <form id="transactionForm">
+            <div class="form-group">
+                <label for="sender">Sender:</label>
+                <input type="text" class="form-control" id="sender" name="sender" required>
+            </div>
+            <div class="form-group">
+                <label for="recipient">Recipient:</label>
+                <input type="text" class="form-control" id="recipient" name="recipient" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount:</label>
+                <input type="number" class="form-control" id="amount" name="amount" required>
+            </div>
+            <button type="button" class="btn btn-primary" id="submitTransactionBtn">Submit Transaction</button>
+        </form>
+    </div>
+    <div id="box">
+        <h2>Mine a Block</h2>
+        <button type="button" class="btn btn-success" id="mineBtn">Mine Block</button>
+    </div>
+    <div id="box">
+        <h2>View the Blockchain</h2>
+        <button type="button" class="btn btn-info" id="viewChainBtn">Refresh Blockchain</button>
+        <div id="chainOutput"></div>
+    </div>
+    <div id="box">
+        <h2>Reset System</h2>
+        <button type="button" class="btn btn-danger" id="resetBtn">Reset Blockchain</button>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Function to handle transaction submission
+    $('#submitTransactionBtn').on('click', function() {
+        var transactionData = {
+            sender: $('#sender').val(),
+            recipient: $('#recipient').val(),
+            amount: parseInt($('#amount').val(), 10)
+        };
+        $.ajax({
+            url: '/transactions/new',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(transactionData),
+            success: function(response) {
+                alert('Transaction added: ' + response.message);
+                $('#transactionForm')[0].reset(); // Reset form after submission
+            },
+            error: function() {
+                alert('Error submitting transaction');
+            }
+        });
+    });
+
+    // Function to handle mining
+    $('#mineBtn').on('click', function() {
+        $.get('/mine', function(response) {
+            alert('Block successfully mined: ' + response.message);
+            $('#viewChainBtn').click(); // Automatically refresh blockchain view after mining
+        }).fail(function() {
+            alert('Error mining block');
+        });
+    });
+
+    // Function to fetch and display the blockchain
+    $('#viewChainBtn').on('click', function() {
+        $.get('/chain', function(data) {
+            let chainHTML = '<table class="table table-dark table-bordered"><thead><tr><th>Index</th><th>Timestamp</th><th>Transactions</th></tr></thead><tbody>';
+            data.chain.forEach((block, index) => {
+                // Skip rendering the first block (genesis block)
+                if (index === 0) return;
+                chainHTML += `<tr><td>${index}</td><td>${new Date(block.timestamp * 1000).toLocaleString()}</td><td>`;
+                block.transactions.forEach(tx => {
+                    chainHTML += `From: ${tx.sender}, To: ${tx.recipient}, Amount: ${tx.amount}<br>`;
+                });
+                chainHTML += `</td></tr>`;
+            });
+            chainHTML += '</tbody></table>';
+            $('#chainOutput').html(chainHTML);
+        }).fail(function() {
+            alert('Failed to fetch blockchain data.');
+        });
+    });
+
+    // Function to handle resetting the system
+    $('#resetBtn').on('click', function() {
+        $.post('/reset', function(response) {
+            alert(response.message);
+            $('#viewChainBtn').click(); // Automatically refresh blockchain view after reset
+        }).fail(function() {
+            alert('Error resetting blockchain');
+        });
+    });
+});
+</script>
+</body>
+</html>
