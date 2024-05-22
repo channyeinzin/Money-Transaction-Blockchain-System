@@ -67,6 +67,4 @@ Replace `[port_number]` with the port number used in `track.py`.
 
 ## Demo Screenshots
 
-![Demo Screenshot1](images/sc1.png)
-![Demo Screenshot2](images/sc2.png)
-![Demo Screenshot3](images/sc3.png)
+![Demo Screenshot1](images/rc1.gif)
